@@ -5,7 +5,7 @@ type FirstTable = [(String, [Int])]
 type FollowTable = [(NonTerminal, [Int])]
 type NextTable = [(Int, [Int])]
 
-makeTables :: (IR, SymbolTable, [NonTerminal]) -> (FirstTable, FollowTable, NextTable)
+makeTables :: (IR, SymbolTable, [NonTerminal]) -> Bool -> (FirstTable, FollowTable, NextTable)
 makeTables = undefined
 
 showTables ::  (FirstTable, FollowTable, NextTable) -> String

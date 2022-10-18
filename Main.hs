@@ -62,6 +62,7 @@ main = do
             ir = grammarParse tokens
             improvedIR = if optRevise opts then fixLL ir else ir
             tables = makeTables improvedIR (optWorklist opts)
+            --tables = makeTables improvedIR
         if not $ optTable opts
           then putStrLn $ showTables tables
           else case toYaml tables of
