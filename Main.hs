@@ -48,7 +48,7 @@ compilerOpts argv =
 -- Print help
 helpIO :: IO()
 helpIO = putStrLn $ usageInfo usage options
-  where header = "Usage: ./llgen [OPTION]... [file]"
+  where usage = "Usage: ./llgen [OPTION]... [file]"
 
 -- Main IO function
 main :: IO ()
