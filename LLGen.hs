@@ -1,11 +1,11 @@
 module LLGen where
 import Reader
 
-type FirstTable = [(String, [Int])]
-type FollowTable = [(NonTerminal, [Int])]
-type NextTable = [(Int, [Int])]
+type FirstTable = [(Symbol, [Symbol])]
+type FollowTable = [(NonTerminal, [Symbol])]
+type NextTable = [(Int, [Symbol])]
 
-makeTables :: (IR, SymbolTable, [NonTerminal]) -> Bool -> (FirstTable, FollowTable, NextTable)
+makeTables :: (IR, [Terminal], [NonTerminal]) -> Bool -> (FirstTable, FollowTable, NextTable)
 makeTables = undefined
 
 showTables ::  (FirstTable, FollowTable, NextTable) -> String
@@ -14,5 +14,5 @@ showTables = undefined
 toYaml ::  (FirstTable, FollowTable, NextTable) -> Maybe String
 toYaml = undefined
 
-fixLL :: (IR, SymbolTable, [NonTerminal])  -> (IR, SymbolTable, [NonTerminal]) 
+fixLL :: (IR, [Terminal], [NonTerminal])  -> (IR, [Terminal], [NonTerminal]) 
 fixLL = undefined
