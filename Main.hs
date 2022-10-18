@@ -51,20 +51,22 @@ helpIO = putStrLn $ usageInfo usage options
   where usage = "Usage: ./llgen [OPTION]... [file]"
 
 -- Main IO function
-main :: IO ()
-main = do
-  allArgs <- getArgs
-  let opts = compilerOpts allArgs
-  if optHelp opts || fname opts == "" then helpIO
-  else do 
-        contents <- readFile (fname opts)
-        let tokens = grammarScan contents
-            ir = grammarParse tokens
-            improvedIR = if optRevise opts then fixLL ir else ir
-            tables = makeTables improvedIR (optWorklist opts)
-            --tables = makeTables improvedIR
-        if not $ optTable opts
-          then putStrLn $ showTables tables
-          else case toYaml tables of
-                    Nothing -> error "Not LL(1)"
-                    Just str -> putStrLn str
+main :: IO() 
+-- main stuff = grammarScan $ readFile(stuff)
+main = grammarScan (readFile ("testInput.txt"))
+
+-- main = do
+--   allArgs <- getArgs
+--   let opts = compilerOpts allArgs
+--   if optHelp opts || fname opts == "" then helpIO
+--   else do 
+--         contents <- readFile (fname opts)
+--         let tokens = grammarScan contents
+--             ir = grammarParse tokens
+--             improvedIR = if optRevise opts then fixLL ir else ir
+--             tables = makeTables improvedIR (optWorklist opts)
+--         if not $ optTable opts
+--           then putStrLn $ showTables tables
+--           else case toYaml tables of
+--                     Nothing -> error "Not LL(1)"
+--                     Just str -> putStrLn str

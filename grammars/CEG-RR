@@ -9,7 +9,7 @@ EPrime : PLUS  Term EPrime
        | epsilon 
        ;
 
-Term   : Factor TPrime 
+Term   : Factor TPrim
        ;
 
 TPrime : TIMES Factor TPrime
