@@ -2,7 +2,6 @@ module Main where
 import Data.Char
 import Debug.Trace
 import Data.List
-import System.Random
 import System.Console.GetOpt
 import System.Environment
 import Control.Monad
@@ -57,13 +56,14 @@ main = do
   allArgs <- getArgs
   let opts = compilerOpts allArgs
   if optHelp opts || fname opts == "" then helpIO
-  else do contents <- readFile (fname opts)
-          let tokens = grammarScan contents
-		      ir = grammarParse tokens
-			  improvedIR = if optRevise opts then fixLL ir else ir
-			  tables = makeTables improvedIR (optWorklist opts)
-		  in if not $ optTable opts
-		 	 then putStrLn $ showTables tables
-			 else case toYaml tables of
-			 		Nothing -> error "Not LL(1)"
-					Just str -> putStrLn str
+  else do 
+        contents <- readFile (fname opts)
+        let tokens = grammarScan contents
+            ir = grammarParse tokens
+            improvedIR = if optRevise opts then fixLL ir else ir
+            tables = makeTables improvedIR (optWorklist opts)
+        if not $ optTable opts
+          then putStrLn $ showTables tables
+          else case toYaml tables of
+                    Nothing -> error "Not LL(1)"
+                    Just str -> putStrLn str
