@@ -39,7 +39,7 @@ A number of tools and reference files are available in the repository.  They inc
 
 * `skeletonParser.rb`:  A skeleton parser you can use to test your generated code. Run with `./skeletonParser.rb -d <table file> <input file>`.
 
-# 2: Modified Backus-Naur Form
+# 2: Modified Backus-Naur Form* If $\epsilon \in $First($B_i$) 
 
 Your parser generator will need to understand an MBNF grammar for the compiler’s input language. You will construct a scanner and a hand-coded, recursive-descent parser for MBNF to serve as the front half of your parser generator. Your recursive-descent parser will build an internal representation for the grammar of the input language.  The table below lists the grammar for Modified Backus-Naur Form, with terminal symbols written in all uppercase letters. Your parser generator will accept as input a description of the parser’s input language in this grammar. Note that the MBNF grammar, as stated, relies on left recursion; before building your parser, you must transform the grammar for MBNF to make it suitable for a top-down, recursive-descent parser.
 
@@ -140,7 +140,7 @@ The syntax for YAML maps, lists, maps of maps of lists, and maps of maps is prov
 ## Computing Next Sets
 The next set for a production  $A \rightarrow B_1 \ldots B_k$ is defined as:
 
-* If $\epsilon \in $First($B_i$) for every $1 \leq i \leq k$, then $Next(A \rightarrow B_1 \ldots B_k) = \big(\bigcup_{1 \leq i \leq k} First(B_i)\big) \cup Follow(A)$
+* If $\epsilon \in First(B_i)$ * If $\epsilon \in $First($B_i$) for every $1 \leq i \leq k$, then $Next(A \rightarrow B_1 \ldots B_k) = \big(\bigcup_{1 \leq i \leq k} First(B_i)\big) \cup Follow(A)$
 * Otherwise, let $B_n$ be the first symbol where $\epsilon \not \in B_i$, and  $Next(A \rightarrow B_1 \ldots B_k) = \big(\bigcup_{1 \leq i \leq n} First(B_i)\big) \setminus \\{ \epsilon \\}$.
 
 

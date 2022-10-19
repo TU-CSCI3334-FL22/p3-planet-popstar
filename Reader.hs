@@ -4,16 +4,18 @@ type Symbol = String
 type Terminal = String
 type NonTerminal = String
 -- type SymbolTable = [(String, Int)] --Map of strings  to ints 
-data Token = Semicolon | Pipe | Epsilon | Colon | Something
+data Token = SEMICOLON | ALSODERIVES | EPSILON | DERIVES | SYMBOL deriving Show
 data IR = Undefined2
 
 
 tokenize :: String -> Token
-tokenize ";" = Semicolon
-tokenize "|" = Pipe
-tokenize "epsilon" = Epsilon
-tokenize ":" = Colon
-tokenize _ = Something
+tokenize ";" = SEMICOLON
+tokenize "|" = ALSODERIVES
+tokenize "epsilon" = EPSILON
+tokenize "Epsilon" = EPSILON
+tokenize "EPSILON" = EPSILON
+tokenize ":" = DERIVES
+tokenize _ = SYMBOL
 
 grammarScan :: String -> ([Token], [Symbol])
 grammarScan fileString = (map tokenize (words fileString), words fileString)

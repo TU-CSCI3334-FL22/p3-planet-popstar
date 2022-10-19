@@ -51,9 +51,14 @@ helpIO = putStrLn $ usageInfo usage options
   where usage = "Usage: ./llgen [OPTION]... [file]"
 
 -- Main IO function
-main :: IO() 
+-- main :: IO() 
 -- main stuff = grammarScan $ readFile(stuff)
-main = grammarScan (readFile ("testInput.txt"))
+main = do x <- readFile ("testInput.txt")
+          -- putStrLn x
+          print $ grammarScan x
+          -- case x of
+            -- Just str -> return grammarScan str
+            -- Nothing -> ioError (userError "Invalid file name.") 
 
 -- main = do
 --   allArgs <- getArgs
