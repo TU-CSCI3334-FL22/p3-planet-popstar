@@ -31,6 +31,18 @@ parseGrammar tokens =
 parseProductionList :: [Token] -> ([Production], [Token])
 parseProductionList = undefined
 
+parseProductionListPrime :: [Token] -> ([Production], [Token])
+parseProductionListPrime = undefined
+
+parseProductionSet :: [Token] -> ([Production], [Token])
+parseProductionSet = undefined
+
+parseProductionSetPrime :: [Token] -> ([Production], [Token])
+parseProductionSetPrime = undefined
+
+parseRightHandSide :: [Token] -> ([Production], [Token])
+parseRightHandSide = undefined
+
 parseSymbolList :: [Token] -> ([Symbol], [Token])
 parseSymbolList ((SYMBOL s):tokens) = 
     let (newSymbols, newTokens) = parseSymbolListPrime tokens
