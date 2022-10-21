@@ -40,8 +40,16 @@ parseProductionSet = undefined
 parseProductionSetPrime :: [Token] -> ([Production], [Token])
 parseProductionSetPrime = undefined
 
-parseRightHandSide :: [Token] -> ([Production], [Token])
-parseRightHandSide = undefined
+parseRightHandSide :: [Token] -> (Production, [Token])
+parseRightHandSide ((SYMBOL s):tokens) = 
+    let (before, after) = parseRightHandSideHelper tokens 
+    in ((s, before), after)
+
+parseRightHandSideHelper :: [Token] -> ([Symbol], [Token])
+parseRightHandSideHelper (SEMICOLON:tokens) = ([], tokens)
+parseRightHandSideHelper ((SYMBOL s):tokens) = 
+    let (before, after) = parseRightHandSideHelper tokens
+    in (s:before, after)
 
 parseSymbolList :: [Token] -> ([Symbol], [Token])
 parseSymbolList ((SYMBOL s):tokens) = 
