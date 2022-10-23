@@ -14,7 +14,7 @@ tokenList :: [Token]
 -- tokenList = [Symbol "List", Symbol "Pair", Symbol "List", Semicolon, Symbol "Pair",  Symbol "LParen", Symbol "List", Symbol "RParen", Semicolon]
 tokenList = [Symbol "Pair", Symbol "List", Semicolon]
 epsilonList = [Epsilon, Semicolon]
-prodList = [Symbol "List", Derives, Epsilon, AlsoDerives, Symbol "List", Semicolon, Symbol "Pair", AlsoDerives, Symbol "LParen", Semicolon]
+prodList = [Symbol "List", Derives, Epsilon, AlsoDerives, Symbol "List", Semicolon, Symbol "Pair", Derives, Symbol "LParen", Semicolon]
 
 tokenize :: String -> Token
 tokenize ";" = Semicolon
@@ -40,7 +40,12 @@ parseProductionList :: [Token] -> ([Production], [Token])
 parseProductionList = undefined
 
 parseProductionListPrime :: [Token] -> ([Production], [Token])
-parseProductionListPrime = undefined
+parseProductionListPrime [] = ([], []) -- eof case? 
+parseProductionListPrime tokens = 
+    let (owo, uwu) = parseProductionSet tokens -- brings the first production and the rest following token
+        (guh, gah) = parseProductionListPrime uwu
+    in ((owo ++ guh), gah)
+
 
 -- line 6
 parseProductionSet :: [Token] -> ([Production], [Token])
@@ -48,7 +53,7 @@ parseProductionSet (Symbol s:Derives:tokens) =
     let (rightHandSide, rest) = parseRightHandSide tokens
         (rightSide, afterRest) = parseProductionSetPrime rest
         rhsides = rightHandSide:rightSide
-        repeatedvalue = repeat (s)
+        repeatedvalue = repeat s
     in ((zip repeatedvalue rhsides), afterRest) --([Symbol s, rhs], afterRest)
 
 -- line 7
