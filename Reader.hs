@@ -3,19 +3,19 @@ module Reader where
 type Symbol = String
 type Terminal = String
 type NonTerminal = String
-data Token = SEMICOLON | ALSODERIVES | EPSILON | DERIVES | SYMBOL String deriving Show
+data Token = Semicolon | AlsoDerives | Epsilon | Derives | Symbol String deriving Show
 type Production = (NonTerminal, [Symbol])
 data IR = IR [Production] [Terminal] [Symbol]
 
 
 tokenize :: String -> Token
-tokenize ";" = SEMICOLON
-tokenize "|" = ALSODERIVES
-tokenize "epsilon" = EPSILON
-tokenize "Epsilon" = EPSILON
-tokenize "EPSILON" = EPSILON
-tokenize ":" = DERIVES
-tokenize s = SYMBOL s
+tokenize ";" = Semicolon
+tokenize "|" = AlsoDerives
+tokenize "epsilon" = Epsilon
+tokenize "Epsilon" = Epsilon
+tokenize "EPSILON" = Epsilon
+tokenize ":" = Derives
+tokenize s = Symbol s
 
 getSymbols :: [Token] -> [Symbol] -- Unique only
 getSymbols = undefined
@@ -41,27 +41,29 @@ parseProductionSetPrime :: [Token] -> ([Production], [Token])
 parseProductionSetPrime = undefined
 
 parseRightHandSide :: [Token] -> (Production, [Token])
-parseRightHandSide ((SYMBOL s):tokens) = 
+parseRightHandSide ((Symbol s):tokens) = 
     let (before, after) = parseRightHandSideHelper tokens 
     in ((s, before), after)
 
 parseRightHandSideHelper :: [Token] -> ([Symbol], [Token])
-parseRightHandSideHelper (SEMICOLON:tokens) = ([], tokens)
-parseRightHandSideHelper ((SYMBOL s):tokens) = 
+parseRightHandSideHelper (Semicolon:tokens) = ([], tokens)
+parseRightHandSideHelper ((Symbol s):tokens) = 
     let (before, after) = parseRightHandSideHelper tokens
     in (s:before, after)
 
 parseSymbolList :: [Token] -> ([Symbol], [Token])
-parseSymbolList ((SYMBOL s):tokens) = 
+parseSymbolList ((Symbol s):tokens) = 
     let (newSymbols, newTokens) = parseSymbolListPrime tokens
     in  (s:newSymbols, newTokens)
 
 parseSymbolListPrime :: [Token] -> ([Symbol], [Token])
+
 --line 14
-parseSymbolListPrime tokens@(ALSODERIVES:_) = ([], tokens)
-parseSymbolListPrime tokens@(SEMICOLON:_) = ([], tokens)
+parseSymbolListPrime tokens@(AlsoDerives:_) = ([], tokens)
+parseSymbolListPrime tokens@(Semicolon:_) = ([], tokens)
+
 --line 13
-parseSymbolListPrime ((SYMBOL s):tokens) = 
+parseSymbolListPrime ((Symbol s):tokens) = 
     let (newSymbols, newTokens) = parseSymbolListPrime tokens
     in  (s:newSymbols, newTokens)
 
