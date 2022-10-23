@@ -1,20 +1,13 @@
 module Reader where
 
+import Data.List
+
 type Symbol = String
 type Terminal = String
 type NonTerminal = String
 data Token = Semicolon | AlsoDerives | Epsilon | Derives | Symbol String deriving Show
 type Production = (NonTerminal, [Token])
-data IR = IR [Production] [Terminal] [Symbol]
-
-tokenList :: [Token]
--- tokenList = [Symbol "List", Derives, Symbol "Pair", Symbol "List", AlsoDerives, Epsilon, Semicolon, Symbol "Pair", Derives, Symbol "LParen", Symbol "List", Symbol "RParen", Semicolon]
--- tokenList = [Symbol "List", Derives, Symbol "Pair", Symbol "List", Semicolon, Symbol "Pair", Derives, Symbol "LParen", Symbol "List", Symbol "RParen", Semicolon]
--- tokenList = [AlsoDerives, Symbol "Pair", Semicolon, Symbol "Pair", Derives, Symbol "LParen", Symbol "List", Symbol "RParen", Semicolon]
--- tokenList = [Symbol "List", Symbol "Pair", Symbol "List", Semicolon, Symbol "Pair",  Symbol "LParen", Symbol "List", Symbol "RParen", Semicolon]
-tokenList = [Symbol "Pair", Symbol "List", Semicolon]
-epsilonList = [Epsilon, Semicolon]
-prodList = [Symbol "List", Derives, Epsilon, AlsoDerives, Symbol "List", Semicolon, Symbol "Pair", Derives, Symbol "LParen", Semicolon]
+data IR = IR [Production] [Terminal] [Symbol] deriving Show
 
 tokenize :: String -> Token
 tokenize ";" = Semicolon
@@ -25,19 +18,32 @@ tokenize "EPSILON" = Epsilon
 tokenize ":" = Derives
 tokenize s = Symbol s
 
-getSymbols :: [Token] -> [Symbol] -- Unique only
-getSymbols = undefined
+grammarScan :: String -> [Token]
+grammarScan fileString = map tokenize (words fileString)
 
-grammarScan :: String -> ([Token], [Symbol])
-grammarScan fileString = let tokens = map tokenize (words fileString) in (tokens, getSymbols tokens)
+getSymbols :: [Token] -> [Symbol]
+getSymbols token = nub [x | Symbol x <- token]
+
+getTerminals :: [Production] -> [Symbol] -> [Terminal]
+getTerminals productions symbols =
+    let lhsSymbols = [x | (x, _) <- productions]
+        terminals = [x | x <- symbols, not (x `elem` lhsSymbols)]
+    in terminals
 
 parseGrammar :: [Token] -> (IR, [Token])
 parseGrammar tokens = 
-    let (productionList, newTokens) = parseProductionList tokens
-    in undefined
+    let (productions, newTokens) = parseProductionList tokens
+        symbols = getSymbols tokens
+        terminals = getTerminals productions symbols
+    in (IR productions terminals symbols, tokens)
 
+-- line 3
 parseProductionList :: [Token] -> ([Production], [Token])
-parseProductionList = undefined
+parseProductionList tokens = 
+    let (rhSide, rest) = parseProductionSet tokens
+        (newProductions, newTokens) = parseProductionListPrime rest
+        addedSides = rhSide++newProductions
+    in (addedSides, newTokens)
 
 parseProductionListPrime :: [Token] -> ([Production], [Token])
 parseProductionListPrime [] = ([], []) -- eof case? 
@@ -45,7 +51,6 @@ parseProductionListPrime tokens =
     let (owo, uwu) = parseProductionSet tokens -- brings the first production and the rest following token
         (guh, gah) = parseProductionListPrime uwu
     in ((owo ++ guh), gah)
-
 
 -- line 6
 parseProductionSet :: [Token] -> ([Production], [Token])

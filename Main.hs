@@ -53,9 +53,9 @@ helpIO = putStrLn $ usageInfo usage options
 -- Main IO function
 -- main :: IO() 
 -- main stuff = grammarScan $ readFile(stuff)
-main = do x <- readFile ("testInput.txt")
+main = do x <- readFile ("/users/ylee5/compilers/p3-planet-popstar/grammars/Parens")
           -- putStrLn x
-          print $ grammarScan x
+          print $ parseGrammar $ grammarScan x
           -- case x of
             -- Just str -> return grammarScan str
             -- Nothing -> ioError (userError "Invalid file name.") 
