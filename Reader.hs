@@ -4,7 +4,7 @@ type Symbol = String
 type Terminal = String
 type NonTerminal = String
 data Token = Semicolon | AlsoDerives | Epsilon | Derives | Symbol String deriving Show
-type Production = (NonTerminal, [Symbol])
+type Production = (NonTerminal, [Token])
 data IR = IR [Production] [Terminal] [Symbol]
 
 tokenList :: [Token]
@@ -14,7 +14,7 @@ tokenList :: [Token]
 -- tokenList = [Symbol "List", Symbol "Pair", Symbol "List", Semicolon, Symbol "Pair",  Symbol "LParen", Symbol "List", Symbol "RParen", Semicolon]
 tokenList = [Symbol "Pair", Symbol "List", Semicolon]
 epsilonList = [Epsilon, Semicolon]
-prodList = [AlsoDerives, Epsilon, AlsoDerives, Symbol "List", Semicolon, Symbol "Pair", AlsoDerives, Symbol "LParen", Semicolon]
+prodList = [Symbol "List", Derives, Epsilon, AlsoDerives, Symbol "List", Semicolon, Symbol "Pair", AlsoDerives, Symbol "LParen", Semicolon]
 
 tokenize :: String -> Token
 tokenize ";" = Semicolon
@@ -42,11 +42,16 @@ parseProductionList = undefined
 parseProductionListPrime :: [Token] -> ([Production], [Token])
 parseProductionListPrime = undefined
 
+-- line 6
 parseProductionSet :: [Token] -> ([Production], [Token])
-parseProductionSet = undefined
+parseProductionSet (Symbol s:Derives:tokens) = 
+    let (rightHandSide, rest) = parseRightHandSide tokens
+        (rightSide, afterRest) = parseProductionSetPrime rest
+        rhsides = rightHandSide:rightSide
+        repeatedvalue = repeat (s)
+    in ((zip repeatedvalue rhsides), afterRest) --([Symbol s, rhs], afterRest)
 
 -- line 7
--- parseProductionSetPrime :: [Token] -> ([Production], [Token])
 parseProductionSetPrime :: [Token] -> ([[Token]], [Token])
 parseProductionSetPrime (Semicolon:tokens) = ([], tokens)
 parseProductionSetPrime (AlsoDerives:tokens) = 
