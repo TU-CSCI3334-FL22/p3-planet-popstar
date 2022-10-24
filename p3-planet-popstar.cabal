@@ -1,0 +1,66 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           p3-planet-popstar
+version:        0.1.0.0
+description:    LL(1) Parser Table Generator in Haskell
+homepage:       https://github.com/githubuser/p3-planet-popstar#readme
+bug-reports:    https://github.com/githubuser/p3-planet-popstar/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2022 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/p3-planet-popstar
+
+library
+  exposed-modules:
+      Lib
+  other-modules:
+      Paths_p3_planet_popstar
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+    , yaml
+  default-language: Haskell2010
+
+executable llgen
+  main-is: Main.hs
+  other-modules:
+      LLGen
+      Reader
+      Paths_p3_planet_popstar
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , p3-planet-popstar
+    , yaml
+  default-language: Haskell2010
+
+test-suite p3-planet-popstar-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_p3_planet_popstar
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , p3-planet-popstar
+    , yaml
+  default-language: Haskell2010

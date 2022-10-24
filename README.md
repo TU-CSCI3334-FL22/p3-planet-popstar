@@ -1,3 +1,10 @@
+## about popstar
+
+- using stack to manage the build process and dependencies (needed for yaml output)
+  - Build with `stack build`
+  - Run with `stack run`
+  - generated executable will be llgen
+
 # 1: Problem Specification
 
 In this project, you will implement a LL(1) parser generator. Your program takes as input a grammar in the Modified Backus-Naur Form (MBNF) [Section 2](#2-modified-backus-naur-form), and computes the `First`, `Follow`, and `Next` sets for the grammar. You *must* support output in both a human-readable format [Section 3.2](#32-human-readable-output) as well as LL(1) tables in the YAML format [Section 3.3](#33-yaml-ll1-table-output). You can test the correctness of your parser generator using the skeleton parser [Section 1.2](#12-infrastructure), which accepts YAML tables as input.
