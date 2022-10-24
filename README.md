@@ -1,5 +1,7 @@
 ## about popstar
 
+[How to Install Slack](https://docs.haskellstack.org/en/stable/#how-to-install-stack)
+
 - using stack to manage the build process and dependencies (needed for yaml output)
   - Build with `stack build`
   - Run with `stack run`
