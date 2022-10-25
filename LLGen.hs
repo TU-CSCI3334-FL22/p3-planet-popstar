@@ -7,9 +7,7 @@ type NextTable = [(Int, [Symbol])]
 
 
 makeTableFirst :: (IR, [Token]) -> FirstTable
-makeTableFirst = 
-
-
+makeTableFirst = undefined
 
 makeTableFollow = undefined 
 makeTableNext = undefined 

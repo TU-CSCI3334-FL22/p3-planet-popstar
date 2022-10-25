@@ -37,7 +37,6 @@ parseGrammar tokens =
         (terminals, nonTerminals) = getTerminals productions symbols
     in (IR productions terminals nonTerminals, tokens)
 
--- line 3
 parseProductionList :: [Token] -> ([Production], [Token])
 parseProductionList tokens = 
     let (rhSide, rest) = parseProductionSet tokens
@@ -46,22 +45,20 @@ parseProductionList tokens =
     in (addedSides, newTokens)
 
 parseProductionListPrime :: [Token] -> ([Production], [Token])
-parseProductionListPrime [] = ([], []) -- eof case? 
+parseProductionListPrime [] = ([], [])
 parseProductionListPrime tokens = 
-    let (owo, uwu) = parseProductionSet tokens -- brings the first production and the rest following token
+    let (owo, uwu) = parseProductionSet tokens
         (guh, gah) = parseProductionListPrime uwu
     in ((owo ++ guh), gah)
 
--- line 6
 parseProductionSet :: [Token] -> ([Production], [Token])
 parseProductionSet (Symbol s:Derives:tokens) = 
     let (rightHandSide, rest) = parseRightHandSide tokens
         (rightSide, afterRest) = parseProductionSetPrime rest
         rhsides = rightHandSide:rightSide
         repeatedvalue = repeat s
-    in ((zip repeatedvalue rhsides), afterRest) --([Symbol s, rhs], afterRest)
+    in ((zip repeatedvalue rhsides), afterRest)
 
--- line 7
 parseProductionSetPrime :: [Token] -> ([[Token]], [Token])
 parseProductionSetPrime (Semicolon:tokens) = ([], tokens)
 parseProductionSetPrime (AlsoDerives:tokens) = 
@@ -69,7 +66,7 @@ parseProductionSetPrime (AlsoDerives:tokens) =
         (rhsides, afterRest) = parseProductionSetPrime rest
     in ((rightHandSide):rhsides, afterRest)
 
-parseRightHandSide :: [Token]  -> ([Token], [Token]) --([Tokens on right hand side], [Tokens remaining])
+parseRightHandSide :: [Token]  -> ([Token], [Token])
 parseRightHandSide (Epsilon:tokens) = ([Epsilon], tokens)
 parseRightHandSide tokens@((Symbol s):_) = 
     let (before, after) = parseSymbolList (tokens) 
@@ -81,18 +78,8 @@ parseSymbolList ((Symbol s):tokens) =
     in  (Symbol s:newSymbols, newTokens)
 
 parseSymbolListPrime :: [Token] -> ([Token], [Token])
-
---line 14
 parseSymbolListPrime tokens@(AlsoDerives:_) = ([], tokens)
 parseSymbolListPrime tokens@(Semicolon:_) = ([], tokens)
-
---line 13
 parseSymbolListPrime ((Symbol s):tokens) = 
     let (newSymbols, newTokens) = parseSymbolListPrime tokens
     in  (Symbol s:newSymbols, newTokens)
-parseSymbolListPrime [] = ([], []) -- shouldn't happen
-
---IR, symbol table, list of non-terminals You can move the generation of the symbol table to here if you want.
-grammarParse :: ([Token], [Symbol]) -> IR
--- grammarParse _ = (parseIR _, parseTerminals _, parseNonTerminals _)
-grammarParse = undefined
