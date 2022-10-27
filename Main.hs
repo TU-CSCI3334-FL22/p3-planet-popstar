@@ -53,9 +53,9 @@ helpIO = putStrLn $ usageInfo usage options
 -- Main IO function
 -- main :: IO() 
 -- main stuff = grammarScan $ readFile(stuff)
-main = do x <- readFile ("./grammars/Parens")
+main = do x <- readFile ("./grammars/Factor-LL1-RR")
           -- putStrLn x
-          print $ parseGrammar $ grammarScan x
+          print $ makeTableFirst $ parseGrammar $ grammarScan x
           -- case x of
             -- Just str -> return grammarScan str
             -- Nothing -> ioError (userError "Invalid file name.") 
