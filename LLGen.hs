@@ -6,13 +6,14 @@ type FollowTable = [(NonTerminal, [Symbol])]
 type NextTable = [(Int, [Symbol])]
 
 makeTableFirstHelper :: (IR, [Token]) -> [Terminal] 
-makeTableFirstHelper = undefined 
+makeTableFirstHelper ((IR productions, terminals, nonterminals), tokens) = 
+    undefined 
 
 makeTableFirst :: (IR, [Token]) -> FirstTable
 makeTableFirst ((IR productions, terminals, nonterminals), tokens) = 
     let terminalList = [ (x, [x]) | x <- terminals ] -- purely terminals
         finalNTList = [ (y, makeTableFirstHelper y) | y <- nonterminals ]
-    in  _ 
+    in finalNTList++terminalList 
 
 makeTableFollow = undefined 
 makeTableNext = undefined 
