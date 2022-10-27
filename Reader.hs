@@ -35,7 +35,7 @@ parseGrammar tokens =
     let (productions, newTokens) = parseProductionList tokens
         symbols = getSymbols tokens
         (terminals, nonTerminals) = getTerminals productions symbols
-    in (IR productions terminals nonTerminals, tokens)
+    in (IR productions (nub terminals) (nub nonTerminals), tokens)
 
 parseProductionList :: [Token] -> ([Production], [Token])
 parseProductionList tokens = 
