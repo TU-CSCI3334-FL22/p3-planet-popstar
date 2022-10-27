@@ -8,12 +8,12 @@ type NextTable = [(Int, [Symbol])]
 
 makeTableFirstHelper :: IR -> NonTerminal -> [Terminal] 
 makeTableFirstHelper ir@(IR productions terminals _) nonTerminal = 
-    let associatedSymbols = [ s | (x, Symbol s:xs) <- productions, x == nonTerminal]
+    let associatedSymbols = [ s | (x, s:xs) <- productions, x == nonTerminal]
         (tts, ntts) = partition (`elem` terminals) associatedSymbols
     in tts ++ concat [makeTableFirstHelper ir t | t <- ntts]
 
-makeTableFirst :: (IR, [Token]) -> FirstTable
-makeTableFirst (ir@(IR _ terminals nonTerminals), tokens) = 
+makeTableFirst :: IR -> FirstTable
+makeTableFirst (ir@(IR _ terminals nonTerminals)) = 
     let terminalList = [(x, [x]) | x <- terminals]
         finalNTList = [(x, makeTableFirstHelper ir x) | x <- nonTerminals]
     in finalNTList++terminalList 

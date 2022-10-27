@@ -6,7 +6,7 @@ type Symbol = String
 type Terminal = String
 type NonTerminal = String
 data Token = Semicolon | AlsoDerives | Epsilon | Derives | Symbol String deriving Show
-type Production = (NonTerminal, [Token])
+type Production = (NonTerminal, [Symbol])
 data IR = IR [Production] [Terminal] [NonTerminal] deriving Show
 
 tokenize :: String -> Token
@@ -30,12 +30,12 @@ getTerminals productions symbols =
         terminals = [x | x <- symbols, not (x `elem` lhsSymbols)]
     in (terminals, lhsSymbols)
 
-parseGrammar :: [Token] -> (IR, [Token])
+parseGrammar :: [Token] -> IR
 parseGrammar tokens = 
     let (productions, newTokens) = parseProductionList tokens
         symbols = getSymbols tokens
         (terminals, nonTerminals) = getTerminals productions symbols
-    in (IR productions (nub terminals) (nub nonTerminals), tokens)
+    in IR productions (nub terminals) (nub nonTerminals)
 
 parseProductionList :: [Token] -> ([Production], [Token])
 parseProductionList tokens = 
@@ -57,7 +57,7 @@ parseProductionSet (Symbol s:Derives:tokens) =
         (rightSide, afterRest) = parseProductionSetPrime rest
         rhsides = rightHandSide:rightSide
         repeatedvalue = repeat s
-    in ((zip repeatedvalue rhsides), afterRest)
+    in([(x, [s | Symbol s <- tks]) | (x, tks) <- (zip repeatedvalue rhsides)], afterRest)
 
 parseProductionSetPrime :: [Token] -> ([[Token]], [Token])
 parseProductionSetPrime (Semicolon:tokens) = ([], tokens)
