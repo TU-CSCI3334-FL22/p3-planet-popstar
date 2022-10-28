@@ -53,7 +53,7 @@ helpIO = putStrLn $ usageInfo usage options
 -- Main IO function
 -- main :: IO() 
 -- main stuff = grammarScan $ readFile(stuff)
-main = do x <- readFile ("./grammars/Factor-LL1-RR")
+main = do x <- readFile ("./grammars/CEG-RR")
           -- putStrLn x
           print $ makeTableFirst $ parseGrammar $ grammarScan x
           -- case x of

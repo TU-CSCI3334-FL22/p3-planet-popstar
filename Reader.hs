@@ -57,29 +57,29 @@ parseProductionSet (Symbol s:Derives:tokens) =
         (rightSide, afterRest) = parseProductionSetPrime rest
         rhsides = rightHandSide:rightSide
         repeatedvalue = repeat s
-    in([(x, [s | Symbol s <- tks]) | (x, tks) <- (zip repeatedvalue rhsides)], afterRest)
+    in( zip repeatedvalue rhsides, afterRest)
 
-parseProductionSetPrime :: [Token] -> ([[Token]], [Token])
+parseProductionSetPrime :: [Token] -> ([[Symbol]], [Token])
 parseProductionSetPrime (Semicolon:tokens) = ([], tokens)
 parseProductionSetPrime (AlsoDerives:tokens) = 
     let (rightHandSide, rest) = parseRightHandSide tokens
         (rhsides, afterRest) = parseProductionSetPrime rest
     in ((rightHandSide):rhsides, afterRest)
 
-parseRightHandSide :: [Token]  -> ([Token], [Token])
-parseRightHandSide (Epsilon:tokens) = ([Epsilon], tokens)
+parseRightHandSide :: [Token]  -> ([Symbol], [Token])
+parseRightHandSide (Epsilon:tokens) = ([], tokens)
 parseRightHandSide tokens@((Symbol s):_) = 
     let (before, after) = parseSymbolList (tokens) 
     in (before, after)
 
-parseSymbolList :: [Token] -> ([Token], [Token])
+parseSymbolList :: [Token] -> ([Symbol], [Token])
 parseSymbolList ((Symbol s):tokens) = 
     let (newSymbols, newTokens) = parseSymbolListPrime tokens
-    in  (Symbol s:newSymbols, newTokens)
+    in  (s:newSymbols, newTokens)
 
-parseSymbolListPrime :: [Token] -> ([Token], [Token])
+parseSymbolListPrime :: [Token] -> ([Symbol], [Token])
 parseSymbolListPrime tokens@(AlsoDerives:_) = ([], tokens)
 parseSymbolListPrime tokens@(Semicolon:_) = ([], tokens)
 parseSymbolListPrime ((Symbol s):tokens) = 
     let (newSymbols, newTokens) = parseSymbolListPrime tokens
-    in  (Symbol s:newSymbols, newTokens)
+    in  (s:newSymbols, newTokens)
