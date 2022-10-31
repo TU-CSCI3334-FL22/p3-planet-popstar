@@ -5,6 +5,7 @@ import Data.List
 type FirstTable = [(Symbol, [Terminal])]
 type FollowTable = [(NonTerminal, [Symbol])]
 type NextTable = [(Int, [Symbol])]
+type Trailer = [Terminal]
 
 initializeFirst :: IR -> FirstTable 
 initializeFirst ir  = firstForeach ir ++ secondForeach ir
@@ -24,7 +25,7 @@ unionValue key newVals table =
         appendedVals = sort $ nub $ currentVals ++ newVals 
     in (key, appendedVals):[ (k, v)| (k, v) <- table, k /= key]
 
-
+--line 7 + 8
 firstOfRHS :: [Symbol] ->  FirstTable -> [Terminal]
 firstOfRHS [] ft = ["_epsilon"]
 firstOfRHS (x:xs) ft = 
@@ -33,6 +34,7 @@ firstOfRHS (x:xs) ft =
         then (firstOfRHS xs ft) ++ (fx \\ ["_epsilon"])
         else fx  
 
+-- line 11 
 firstOfProduction :: Production -> FirstTable -> FirstTable
 firstOfProduction(lhs, rhs) ft = 
     let rhsVal = firstOfRHS rhs ft
@@ -57,6 +59,24 @@ makeTableFirst ir@(IR productions terminals nonterminals) =
     repeatFirst productions (initializeFirst ir) 
 
 makeTableFollow = undefined 
+
+-- lines 1 - 3
+initializeFollow :: IR -> FollowTable
+initializeFollow ir = topLevelNT ir ++ followForeach ir
+    where followForeach ir@(IR productions terminals nonterminals) = [(x, []) | x <- nonterminals]
+          topLevelNT ir@(IR productions terminals nonterminals) = [((head nonterminals), ["_eof"])] 
+
+lastOfProduction :: [NonTerminal] -> Production -> FollowTable -> FollowTable
+lastOfProduction trailer (lhs, rhs) ft = 
+    let ft = unionValue lhs trailer ft
+    in ft
+
+-- repeatFollow :: [Production] -> FollowTable -> FollowTable
+-- repeatFollow prods ft = 
+--     let newFollowTable = sort $ 
+
+
+
 makeTableNext = undefined 
 makeTableWorklist = undefined
 

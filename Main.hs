@@ -59,6 +59,8 @@ main = do x <- readFile ("./grammars/CEG-RR")
           -- case x of
             -- Just str -> return grammarScan str
             -- Nothing -> ioError (userError "Invalid file name.") 
+testFollow = do x <- readFile ("./grammars/CEG-RR")
+                print $ initializeFollow $ parseGrammar $ grammarScan x
 
 -- main = do
 --   allArgs <- getArgs
