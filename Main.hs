@@ -61,6 +61,11 @@ main = do x <- readFile ("./grammars/CEG-RR")
             -- Nothing -> ioError (userError "Invalid file name.") 
 testFollow = do x <- readFile ("./grammars/CEG-RR")
                 print $ initializeFollow $ parseGrammar $ grammarScan x
+testLastOfProduction = do x <- readFile ("./grammars/CEG-RR")
+                          print $ makeTableFollow $ parseGrammar $ grammarScan x
+
+makeIR = do x <- readFile ("./grammars/CEG-RR")
+            print  $ parseGrammar $ grammarScan x
 
 -- main = do
 --   allArgs <- getArgs

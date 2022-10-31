@@ -7,6 +7,14 @@ type FollowTable = [(NonTerminal, [Symbol])]
 type NextTable = [(Int, [Symbol])]
 type Trailer = [Terminal]
 
+--Here follow some test data
+sampleIR = IR [("Goal",["Expr"]),("Expr",["Term","EPrime"]),("EPrime",["PLUS","Term","EPrime"]),("EPrime",["MINUS","Term","EPrime"]),("EPrime",[]),("Term",["Factor","TPrime"]),("TPrime",["TIMES","Factor","TPrime"]),("TPrime",["DIV","Factor","TPrime"]),("TPrime",[]),("Factor",["LP","Expr","RP"]),("Factor",["NUMBER"]),("Factor",["IDENTIFIER"])] ["PLUS","MINUS","TIMES","DIV","LP","RP","NUMBER","IDENTIFIER"] ["Goal","Expr","EPrime","Term","TPrime","Factor"]
+initializedFollowTable = [("Goal",["_eof"]),("Goal",[]),("Expr",[]),("EPrime",[]),("Term",[]),("TPrime",[]),("Factor",[])]
+sampleFirstTable = [("DIV",["DIV"]),("EPrime",["MINUS","PLUS","_epsilon"]),("Expr",["IDENTIFIER","LP","NUMBER"]),("Factor",["IDENTIFIER","LP","NUMBER"]),("Goal",["IDENTIFIER","LP","NUMBER"]),("IDENTIFIER",["IDENTIFIER"]),("LP",["LP"]),("MINUS",["MINUS"]),("NUMBER",["NUMBER"]),("PLUS",["PLUS"]),("RP",["RP"]),("TIMES",["TIMES"]),("TPrime",["DIV","TIMES","_epsilon"]),("Term",["IDENTIFIER","LP","NUMBER"])]
+sampleNonTerminals = ["Goal","Expr","EPrime","Term","TPrime","Factor"]
+
+
+
 initializeFirst :: IR -> FirstTable 
 initializeFirst ir  = firstForeach ir ++ secondForeach ir
     where firstForeach ir@(IR productions terminals nonterminals) = [(x, [x]) | x <- terminals]
@@ -58,24 +66,58 @@ makeTableFirst :: IR -> FirstTable
 makeTableFirst ir@(IR productions terminals nonterminals) = 
     repeatFirst productions (initializeFirst ir) 
 
-makeTableFollow = undefined 
 
+
+-- make table follow starts here !! 
 -- lines 1 - 3
 initializeFollow :: IR -> FollowTable
 initializeFollow ir = topLevelNT ir ++ followForeach ir
-    where followForeach ir@(IR productions terminals nonterminals) = [(x, []) | x <- nonterminals]
+    where followForeach ir@(IR productions terminals nonterminals) = [(x, []) | x <- tail nonterminals]
           topLevelNT ir@(IR productions terminals nonterminals) = [((head nonterminals), ["_eof"])] 
 
-lastOfProduction :: [NonTerminal] -> Production -> FollowTable -> FollowTable
-lastOfProduction trailer (lhs, rhs) ft = 
-    let ft = unionValue lhs trailer ft
-    in ft
-
--- repeatFollow :: [Production] -> FollowTable -> FollowTable
--- repeatFollow prods ft = 
---     let newFollowTable = sort $ 
+-- line 9 terribleHelper
+loPHelper :: Trailer -> Production -> FollowTable -> FollowTable
+loPHelper trailer (lhs, rhs) ft = unionValue lhs trailer ft
 
 
+-- we will pass in the first table to this function
+followProductionHelper :: [Symbol] -> Trailer -> FirstTable -> FollowTable -> [NonTerminal] -> (Trailer, FollowTable) --[Terminal]
+followProductionHelper [] trailer firstTable followTable nonterminals = (trailer, followTable)
+followProductionHelper (x:xs) trailer firstTable followTable nonterminals = 
+    let followTableNew = if x `elem` nonterminals then unionValue x trailer followTable else followTable
+        trailerNew = if "_epsilon" `elem` (getValue x firstTable)
+                    then nub $ trailer ++ ((getValue x firstTable) \\ ["_epsilon"])
+                    else getValue x firstTable
+    in followProductionHelper xs trailerNew firstTable followTableNew nonterminals
+
+-- lines 7 - 13
+followOfProduction :: Production -> Trailer -> FollowTable -> IR -> FollowTable --[Terminal]
+followOfProduction (lhs, rhs) trailer ft ir@(IR productions terminals nonTerminals) = 
+    let reverseRHS = reverse rhs
+        firstT = makeTableFirst ir
+        (newTrailer, newFollowTable) = followProductionHelper reverseRHS trailer firstT ft nonTerminals
+    in newFollowTable
+ 
+
+-- lines 
+followOfProductions :: [Production] -> FollowTable -> IR -> FollowTable
+followOfProductions [] ft ir = ft 
+followOfProductions (p:ps) ft ir = 
+    let newFollowTable = followOfProduction p [] ft ir
+    in followOfProductions ps newFollowTable ir
+
+-- lines 4
+repeatFollow :: [Production] -> FollowTable -> IR -> FollowTable
+repeatFollow prods ft ir = 
+    let newTable = sort $ followOfProductions prods ft ir
+    in if newTable == ft 
+            then newTable 
+            else repeatFollow prods newTable ir
+
+-- overall table
+makeTableFollow :: IR -> FollowTable 
+makeTableFollow ir@(IR productions terminals nonterminals) =
+    repeatFollow productions (initializeFollow ir) ir
 
 makeTableNext = undefined 
 makeTableWorklist = undefined
