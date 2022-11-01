@@ -53,12 +53,29 @@ helpIO = putStrLn $ usageInfo usage options
 -- Main IO function
 -- main :: IO() 
 -- main stuff = grammarScan $ readFile(stuff)
-main = do x <- readFile ("./grammars/Factor-LL1-RR")
+main = do testLastOfProduction
           -- putStrLn x
-          print $ makeTableFirst $ parseGrammar $ grammarScan x
+         
           -- case x of
             -- Just str -> return grammarScan str
             -- Nothing -> ioError (userError "Invalid file name.") 
+testFollow = do x <- readFile ("./grammars/CEG-RR")
+                print $ initializeFollow $ parseGrammar $ grammarScan x
+testLastOfProduction = do contents <- readFile ("./grammars/CEG-RR")
+                          let ir = parseGrammar$ grammarScan contents
+                              firstT = makeTableFirst ir
+                              followT = makeTableFollow ir firstT
+                              nextT = makeTableNext ir firstT followT
+                          putStrLn "First table:"
+                          sequence $ map print firstT
+                          putStrLn "Follow table"
+                          sequence $ map print followT
+                          putStrLn "Next table"
+                          sequence $ map print nextT
+                          return ()
+
+makeIR = do x <- readFile ("./grammars/CEG-RR")
+            print  $ parseGrammar $ grammarScan x
 
 -- main = do
 --   allArgs <- getArgs
