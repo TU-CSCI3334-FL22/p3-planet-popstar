@@ -71,8 +71,36 @@ showTables (IR productions _ _) (firstT, followT, nextT, predictionT) = do
   sequence $ map print predictionT
   return ()
 
+toYamlProd :: (Int, Production) -> IO()
+toYamlProd (x, (lhs, rhs)) = do
+  putStrLn $ "  " ++ show x ++ ": {" ++ show lhs ++ ": " ++ show rhs ++ "}"
+  return ()
+
+toYamlPredCell :: (Terminal, Int) -> String
+toYamlPredCell (terminal, x) = terminal ++ ": " ++ show x ++ ", "
+
+toYamlPred :: (NonTerminal, [(Terminal, Int)]) -> IO()
+toYamlPred (nt, cells)= do
+  putStrLn $ "  " ++ show nt ++ ": {" ++ concat (map toYamlPredCell cells) ++ "}"
+  return ()
+
 toYaml :: IR -> (FirstTable, FollowTable, NextTable, PredictionTable) -> IO()
-toYaml = undefined
+toYaml ir@(IR productions terminals nonTerminals) (firstT, followT, nextT, predictionT) = do
+  putStrLn $ "terminals: " ++ show terminals
+  putStrLn $ "non-terminals: " ++ show nonTerminals
+  putStrLn $ "eof-marker: _eof"
+  putStrLn $ "start-symbol: " ++ head nonTerminals
+  putStrLn $ "productions: "
+  sequence $ map toYamlProd productions
+  putStrLn $ "table: "
+  sequence $ map toYamlPred $ invertPredictionTable ir predictionT
+  return ()
+
+invertPredictionTable :: IR -> PredictionTable -> [(NonTerminal, [(Terminal, Int)])]
+invertPredictionTable (IR productions terminals nonTerminals) predictionT = 
+  let getRow :: NonTerminal -> (NonTerminal, [(Terminal, Int)])
+      getRow nt = (nt, [(pterm, px) | ((pnt, pterm), px) <- predictionT, pnt == nt])
+  in [getRow nt | nt <- nonTerminals]
 
 main :: IO() 
 main = do
