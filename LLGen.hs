@@ -121,11 +121,8 @@ makePredictionHelper x ts ps =
 makePredictionTable :: IR -> NextTable -> PredictionTable
 makePredictionTable (IR productions _ _) nextT = concat [makePredictionHelper x ts productions | (x, ts) <- nextT]
 
-showTables ::  (FirstTable, FollowTable, NextTable) -> String
-showTables = undefined
 
-toYaml ::  (FirstTable, FollowTable, NextTable) -> Maybe String
-toYaml = undefined
 
-fixLL :: (IR, [Terminal], [NonTerminal])  -> (IR, [Terminal], [NonTerminal]) 
-fixLL = undefined
+
+-- fixLL :: (IR, [Terminal], [NonTerminal])  -> (IR, [Terminal], [NonTerminal]) 
+-- fixLL = undefined

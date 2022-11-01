@@ -13,8 +13,8 @@ import LLGen
 data Options = Options {
    optHelp :: Bool
  , optTable :: Bool
- , optRevise :: Bool
- , optWorklist :: Bool
+--  , optRevise :: Bool
+--  , optWorklist :: Bool
  , fname :: String
  }
 
@@ -22,17 +22,17 @@ defaultOptions :: Options
 defaultOptions = Options {
       optHelp = False
     , optTable  = False
-    , optRevise = False
-    , optWorklist = False
+    -- , optRevise = False
+    -- , optWorklist = False
     , fname = ""
  }
 
 options :: [OptDescr (Options -> Options)]
 options = [
   Option ['h'] ["help"]   (NoArg  (\opts -> opts { optHelp = True })) "Print a help message and exit.",
-  Option ['t'] ["table"]   (NoArg  (\opts -> opts { optTable = True })) "Print YAML tables instead of human-readable output.", 
-  Option ['r'] ["revise"]   (NoArg  (\opts -> opts { optRevise= True })) "Attempt to revise the grammar if it is not LL(1).",
-  Option ['w'] ["worklist"]   (NoArg  (\opts -> opts { optWorklist= True })) "Use the worklist version of First and Follow."
+  Option ['t'] ["table"]   (NoArg  (\opts -> opts { optTable = True })) "Print YAML tables instead of human-readable output."
+  -- Option ['r'] ["revise"]   (NoArg  (\opts -> opts { optRevise= True })) "Attempt to revise the grammar if it is not LL(1).",
+  -- Option ['w'] ["worklist"]   (NoArg  (\opts -> opts { optWorklist= True })) "Use the worklist version of First and Follow."
   ]
 
 compilerOpts :: [String] -> Options
@@ -48,48 +48,71 @@ helpIO :: IO()
 helpIO = putStrLn $ usageInfo usage options
   where usage = "Usage: ./llgen [OPTION]... [file]"
 
--- Main IO function
--- main :: IO() 
--- main stuff = grammarScan $ readFile(stuff)
-main = do testLastOfProduction
-          -- putStrLn x
-         
-          -- case x of
-            -- Just str -> return grammarScan str
-            -- Nothing -> ioError (userError "Invalid file name.") 
-testFollow = do x <- readFile ("./grammars/CEG-RR")
-                print $ initializeFollow $ parseGrammar $ grammarScan x
-testLastOfProduction = do contents <- readFile ("./grammars/CEG-RR")
-                          let ir = parseGrammar$ grammarScan contents
-                              firstT = makeTableFirst ir
-                              followT = makeTableFollow ir firstT
-                              nextT = makeTableNext ir firstT followT
-                              predictionT = makePredictionTable ir nextT
-                          putStrLn "First Table:"
-                          sequence $ map print firstT
-                          putStrLn "Follow Table:"
-                          sequence $ map print followT
-                          putStrLn "Next Table:"
-                          sequence $ map print nextT
-                          putStrLn "Prediction Table:"
-                          sequence $ map print predictionT
-                          return ()
+makeTables :: IR -> (FirstTable, FollowTable, NextTable, PredictionTable)
+makeTables ir = 
+  let firstT = makeTableFirst ir
+      followT = makeTableFollow ir firstT
+      nextT = makeTableNext ir firstT followT
+      predictionT = makePredictionTable ir nextT
+    in (firstT, followT, nextT, predictionT)
 
-makeIR = do x <- readFile ("./grammars/CEG-RR")
-            print  $ parseGrammar $ grammarScan x
 
--- main = do
---   allArgs <- getArgs
---   let opts = compilerOpts allArgs
---   if optHelp opts || fname opts == "" then helpIO
---   else do 
---         contents <- readFile (fname opts)
---         let tokens = grammarScan contents
---             ir = grammarParse tokens
---             improvedIR = if optRevise opts then fixLL ir else ir
---             tables = makeTables improvedIR (optWorklist opts)
---         if not $ optTable opts
---           then putStrLn $ showTables tables
---           else case toYaml tables of
---                     Nothing -> error "Not LL(1)"
---                     Just str -> putStrLn str
+showTables :: IR -> (FirstTable, FollowTable, NextTable, PredictionTable) -> IO()
+showTables (IR productions _ _) (firstT, followT, nextT, predictionT) = do
+  putStrLn "Productions:"
+  sequence $ map print productions
+  putStrLn "\nFirst Table:"
+  sequence $ map print firstT
+  putStrLn "\nFollow Table:"
+  sequence $ map print followT
+  putStrLn "\nNext Table:"
+  sequence $ map print nextT
+  putStrLn "\nPrediction Table:"
+  sequence $ map print predictionT
+  return ()
+
+toYamlProd :: (Int, Production) -> IO()
+toYamlProd (x, (lhs, rhs)) = do
+  putStrLn $ "  " ++ show x ++ ": {" ++ show lhs ++ ": " ++ show rhs ++ "}"
+  return ()
+
+toYamlPredCell :: (Terminal, Int) -> String
+toYamlPredCell (terminal, x) = terminal ++ ": " ++ show x ++ ", "
+
+toYamlPred :: (NonTerminal, [(Terminal, Int)]) -> IO()
+toYamlPred (nt, cells)= do
+  putStrLn $ "  " ++ show nt ++ ": {" ++ concat (map toYamlPredCell cells) ++ "}"
+  return ()
+
+toYaml :: IR -> (FirstTable, FollowTable, NextTable, PredictionTable) -> IO()
+toYaml ir@(IR productions terminals nonTerminals) (firstT, followT, nextT, predictionT) = do
+  putStrLn $ "terminals: " ++ show terminals
+  putStrLn $ "non-terminals: " ++ show nonTerminals
+  putStrLn $ "eof-marker: _eof"
+  putStrLn $ "start-symbol: " ++ head nonTerminals
+  putStrLn $ "productions: "
+  sequence $ map toYamlProd productions
+  putStrLn $ "table: "
+  sequence $ map toYamlPred $ invertPredictionTable ir predictionT
+  return ()
+
+invertPredictionTable :: IR -> PredictionTable -> [(NonTerminal, [(Terminal, Int)])]
+invertPredictionTable (IR productions terminals nonTerminals) predictionT = 
+  let getRow :: NonTerminal -> (NonTerminal, [(Terminal, Int)])
+      getRow nt = (nt, [(pterm, px) | ((pnt, pterm), px) <- predictionT, pnt == nt])
+  in [getRow nt | nt <- nonTerminals]
+
+main :: IO() 
+main = do
+  allArgs <- getArgs
+  let opts = compilerOpts allArgs
+  if optHelp opts || fname opts == "" then helpIO
+  else do 
+        contents <- readFile (fname opts)
+        let tokens = grammarScan contents
+            ir = parseGrammar tokens
+            -- improvedIR = if optRevise opts then fixLL ir else ir
+            tables = makeTables ir
+        if not $ optTable opts
+          then showTables ir tables
+          else toYaml ir tables
