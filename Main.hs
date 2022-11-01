@@ -10,13 +10,12 @@ import System.Exit
 import Reader
 import LLGen
 
--- Options record
 data Options = Options {
-   optHelp              :: Bool
- , optTable				:: Bool
- , optRevise			:: Bool
- , optWorklist			:: Bool
- , fname                :: String
+   optHelp :: Bool
+ , optTable :: Bool
+ , optRevise :: Bool
+ , optWorklist :: Bool
+ , fname :: String
  }
 
 defaultOptions :: Options
@@ -45,7 +44,6 @@ compilerOpts argv =
      (_,_,errs) -> error (concat errs ++ usageInfo header options)
   where header = "Usage: ./llgen [OPTION]... [file]"
 
--- Print help
 helpIO :: IO()
 helpIO = putStrLn $ usageInfo usage options
   where usage = "Usage: ./llgen [OPTION]... [file]"
@@ -66,12 +64,15 @@ testLastOfProduction = do contents <- readFile ("./grammars/CEG-RR")
                               firstT = makeTableFirst ir
                               followT = makeTableFollow ir firstT
                               nextT = makeTableNext ir firstT followT
-                          putStrLn "First table:"
+                              predictionT = makePredictionTable ir nextT
+                          putStrLn "First Table:"
                           sequence $ map print firstT
-                          putStrLn "Follow table"
+                          putStrLn "Follow Table:"
                           sequence $ map print followT
-                          putStrLn "Next table"
+                          putStrLn "Next Table:"
                           sequence $ map print nextT
+                          putStrLn "Prediction Table:"
+                          sequence $ map print predictionT
                           return ()
 
 makeIR = do x <- readFile ("./grammars/CEG-RR")
