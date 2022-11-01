@@ -5,6 +5,7 @@ import Data.List
 type FirstTable = [(Symbol, [Terminal])]
 type FollowTable = [(NonTerminal, [Symbol])]
 type NextTable = [(Int, [Terminal])]
+type PredictionTable = [((NonTerminal, Terminal), Int)]
 type Trailer = [Terminal]
 
 initializedFollowTable = [("Goal",["_eof"]),("Goal",[]),("Expr",[]),("EPrime",[]),("Term",[]),("TPrime",[]),("Factor",[])]
@@ -107,10 +108,18 @@ makeNextProd :: (Int, Production) -> FirstTable -> FollowTable -> (Int, [Termina
 makeNextProd (x, (lhs, rhs)) firstT followT =
     let result = firstOfRHS rhs firstT
     in if "_epsilon" `elem` result
-        then (x, result ++ getValue lhs followT)
-        else (x, result)
+        then (x, (result ++ getValue lhs followT) \\ ["_epsilon"])
+        else (x, result \\ ["_epsilon"]) 
 
-makeTableWorklist = undefined
+makePredictionHelper :: Int -> [Terminal] -> [(Int, Production)] -> [((NonTerminal, Terminal), Int)]
+makePredictionHelper x ts ps = 
+    let nonTerminalMaybe = lookup x ps
+    in case nonTerminalMaybe of
+        Just (nonTerminal, _) -> [((nonTerminal, t), x) | t <- ts]
+        Nothing -> error "Value does not exist."
+
+makePredictionTable :: IR -> NextTable -> PredictionTable
+makePredictionTable (IR productions _ _) nextT = concat [makePredictionHelper x ts productions | (x, ts) <- nextT]
 
 showTables ::  (FirstTable, FollowTable, NextTable) -> String
 showTables = undefined

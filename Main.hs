@@ -64,12 +64,15 @@ testLastOfProduction = do contents <- readFile ("./grammars/CEG-RR")
                               firstT = makeTableFirst ir
                               followT = makeTableFollow ir firstT
                               nextT = makeTableNext ir firstT followT
-                          putStrLn "First table:"
+                              predictionT = makePredictionTable ir nextT
+                          putStrLn "First Table:"
                           sequence $ map print firstT
-                          putStrLn "Follow table"
+                          putStrLn "Follow Table:"
                           sequence $ map print followT
-                          putStrLn "Next table"
+                          putStrLn "Next Table:"
                           sequence $ map print nextT
+                          putStrLn "Prediction Table:"
+                          sequence $ map print predictionT
                           return ()
 
 makeIR = do x <- readFile ("./grammars/CEG-RR")
