@@ -7,7 +7,7 @@ type Terminal = String
 type NonTerminal = String
 data Token = Semicolon | AlsoDerives | Epsilon | Derives | Symbol String deriving Show
 type Production = (NonTerminal, [Symbol])
-data IR = IR [Production] [Terminal] [NonTerminal] deriving Show
+data IR = IR [(Int, Production)] [Terminal] [NonTerminal] deriving Show
 
 tokenize :: String -> Token
 tokenize ";" = Semicolon
@@ -35,7 +35,7 @@ parseGrammar tokens =
     let (productions, newTokens) = parseProductionList tokens
         symbols = getSymbols tokens
         (terminals, nonTerminals) = getTerminals productions symbols
-    in IR productions (nub terminals) (nub nonTerminals)
+    in IR (zip [0..] productions) (nub terminals) (nub nonTerminals)
 
 parseProductionList :: [Token] -> ([Production], [Token])
 parseProductionList tokens = 
