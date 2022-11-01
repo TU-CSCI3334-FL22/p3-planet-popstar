@@ -7,8 +7,6 @@ type FollowTable = [(NonTerminal, [Symbol])]
 type NextTable = [(Int, [Terminal])]
 type Trailer = [Terminal]
 
---Here follow some test data
--- sampleIR = IR [("Goal",["Expr"]),("Expr",["Term","EPrime"]),("EPrime",["PLUS","Term","EPrime"]),("EPrime",["MINUS","Term","EPrime"]),("EPrime",[]),("Term",["Factor","TPrime"]),("TPrime",["TIMES","Factor","TPrime"]),("TPrime",["DIV","Factor","TPrime"]),("TPrime",[]),("Factor",["LP","Expr","RP"]),("Factor",["NUMBER"]),("Factor",["IDENTIFIER"])] ["PLUS","MINUS","TIMES","DIV","LP","RP","NUMBER","IDENTIFIER"] ["Goal","Expr","EPrime","Term","TPrime","Factor"]
 initializedFollowTable = [("Goal",["_eof"]),("Goal",[]),("Expr",[]),("EPrime",[]),("Term",[]),("TPrime",[]),("Factor",[])]
 sampleFirstTable = [("DIV",["DIV"]),("EPrime",["MINUS","PLUS","_epsilon"]),("Expr",["IDENTIFIER","LP","NUMBER"]),("Factor",["IDENTIFIER","LP","NUMBER"]),("Goal",["IDENTIFIER","LP","NUMBER"]),("IDENTIFIER",["IDENTIFIER"]),("LP",["LP"]),("MINUS",["MINUS"]),("NUMBER",["NUMBER"]),("PLUS",["PLUS"]),("RP",["RP"]),("TIMES",["TIMES"]),("TPrime",["DIV","TIMES","_epsilon"]),("Term",["IDENTIFIER","LP","NUMBER"])]
 sampleNonTerminals = ["Goal","Expr","EPrime","Term","TPrime","Factor"]
@@ -33,7 +31,6 @@ unionValue key newVals table =
         appendedVals = sort $ nub $ currentVals ++ newVals 
     in (key, appendedVals):[ (k, v)| (k, v) <- table, k /= key]
 
---line 7 + 8
 firstOfRHS :: [Symbol] ->  FirstTable -> [Terminal]
 firstOfRHS [] ft = ["_epsilon"]
 firstOfRHS (x:xs) ft = 
@@ -42,14 +39,12 @@ firstOfRHS (x:xs) ft =
         then (firstOfRHS xs ft) ++ (fx \\ ["_epsilon"])
         else fx  
 
--- line 11 
 firstOfProduction :: Production -> FirstTable -> FirstTable
 firstOfProduction(lhs, rhs) ft = 
     let rhsVal = firstOfRHS rhs ft
     in unionValue lhs rhsVal ft 
 
 firstOfProductions :: [(Int, Production)] -> FirstTable -> FirstTable
--- firstOfProductions ps ft = foldr firstOfProduction ft ps
 firstOfProductions [] ft = ft
 firstOfProductions ((_, p):ps) ft = 
     let newTable = firstOfProduction p ft
@@ -67,14 +62,11 @@ makeTableFirst ir@(IR productions terminals nonterminals) =
     repeatFirst productions (initializeFirst ir) 
 
 
--- make table follow starts here !! 
--- lines 1 - 3
 initializeFollow :: IR -> FollowTable
 initializeFollow ir = topLevelNT ir ++ followForeach ir
     where followForeach ir@(IR productions terminals nonterminals) = [(x, []) | x <- tail nonterminals]
           topLevelNT ir@(IR productions terminals nonterminals) = [((head nonterminals), ["_eof"])] 
 
--- we will pass in the first table to this function
 followProductionHelper :: [Symbol] -> Trailer -> FirstTable -> FollowTable -> [NonTerminal] -> (Trailer, FollowTable) --[Terminal]
 followProductionHelper [] trailer firstTable followTable nonterminals = (trailer, followTable)
 followProductionHelper (x:xs) trailer firstTable followTable nonterminals = 
@@ -84,21 +76,18 @@ followProductionHelper (x:xs) trailer firstTable followTable nonterminals =
                     else getValue x firstTable
     in followProductionHelper xs trailerNew firstTable followTableNew nonterminals
 
--- lines 7 - 13
-followOfProduction :: Production -> FirstTable -> FollowTable -> IR -> FollowTable --[Terminal]
+followOfProduction :: Production -> FirstTable -> FollowTable -> IR -> FollowTable
 followOfProduction (lhs, rhs) firstT followT ir@(IR productions terminals nonTerminals) = 
     let reverseRHS = reverse rhs
         (newTrailer, newFollowTable) = followProductionHelper reverseRHS (getValue lhs followT) firstT followT nonTerminals
     in newFollowTable
  
--- lines 
 followOfProductions :: [(Int, Production)] -> FirstTable ->  FollowTable -> IR -> FollowTable
 followOfProductions [] firstT followT ir = followT 
 followOfProductions ((_, p):ps) firstT followT ir = 
     let newFollowTable = followOfProduction p firstT followT ir
     in followOfProductions ps firstT newFollowTable ir
 
--- lines 4
 repeatFollow :: FollowTable -> FirstTable -> IR -> FollowTable
 repeatFollow followT firstT ir@(IR productions terminals nonterminals) = 
     let newTable = sort $ followOfProductions productions firstT followT ir
@@ -106,7 +95,6 @@ repeatFollow followT firstT ir@(IR productions terminals nonterminals) =
             then newTable 
             else repeatFollow newTable firstT ir
 
--- overall table
 makeTableFollow :: IR -> FirstTable -> FollowTable 
 makeTableFollow ir firstT =
     repeatFollow (initializeFollow ir) firstT ir

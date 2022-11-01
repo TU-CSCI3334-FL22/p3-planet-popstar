@@ -10,13 +10,12 @@ import System.Exit
 import Reader
 import LLGen
 
--- Options record
 data Options = Options {
-   optHelp              :: Bool
- , optTable				:: Bool
- , optRevise			:: Bool
- , optWorklist			:: Bool
- , fname                :: String
+   optHelp :: Bool
+ , optTable :: Bool
+ , optRevise :: Bool
+ , optWorklist :: Bool
+ , fname :: String
  }
 
 defaultOptions :: Options
@@ -45,7 +44,6 @@ compilerOpts argv =
      (_,_,errs) -> error (concat errs ++ usageInfo header options)
   where header = "Usage: ./llgen [OPTION]... [file]"
 
--- Print help
 helpIO :: IO()
 helpIO = putStrLn $ usageInfo usage options
   where usage = "Usage: ./llgen [OPTION]... [file]"
