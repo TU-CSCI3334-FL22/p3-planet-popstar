@@ -1,0 +1,10 @@
+Interface: 5
+Scanner/Parser: 10
+Correctness: 50
+YAML table: 15
+* Doesn't detect non-LL1 grammars.
+* Otherwise does work, even with the extra quotes in the output!
+Worklists: 0
+* No worklists
+Missing Points: 5
+Total: 85 (B+)
